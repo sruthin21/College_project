@@ -1,0 +1,97 @@
+﻿@model List<Updated_Project.Models.Student>
+@using Updated_Project.Models
+<h2>Student Marks</h2>
+
+<button id="addRowBtn">Add Row</button>
+
+<form method="post" action="/Student/Save">
+    <table id="marksTable">
+        <thead>
+            <tr>
+                <th>Subject Name</th>
+                <th>Internal Marks Maximum</th>
+                <th>Internal Marks Secured</th>
+                <th>Semester Marks Maximum</th>
+                <th>Semester Marks Secured</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var student in Model)
+            {
+                <tr>
+                    <td>
+                        <select name="SubjectName" class="subjectDropdown">
+                            <option value="subject1">Subject 1</option>
+                            <option value="subject2">Subject 2</option>
+                            <option value="subject3">Subject 3</option>
+                            <option value="subject4">Subject 4</option>
+                            <option value="subject5">Subject 5</option>
+                        </select>
+                    </td>
+                    <td>40</td>
+                    <td><input type="number" name="InternalMarksSecured" value="@student.InternalMarksSecured" /></td>
+                    <td>60</td>
+                    <td><input type="number" name="SemesterMarksSecured" value="@student.SemesterMarksSecured" /></td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <button type="submit">Save</button>
+</form>
+@section Scripts
+{
+    <script>
+        $(document).ready(function () {
+            $("#addRowBtn").click(function () {
+                var newRow = "<tr>" +
+                    "<td>" +
+                    "<select name='students[0].SubjectName' class='subjectDropdown'>" +
+                    "<option value='subject1'>Subject 1</option>" +
+                    "<option value='subject2'>Subject 2</option>" +
+                    "<option value='subject3'>Subject 3</option>" +
+                    "<option value='subject4'>Subject 4</option>" +
+                    "<option value='subject5'>Subject 5</option>" +
+                    "</select>" +
+                    "</td>" +
+                    "<td>40</td>" +
+                    "<td><input type='number' name='students[0].InternalMarksSecured' /></td>" +
+                    "<td>60</td>" +
+                    "<td><input type='number' name='students[0].SemesterMarksSecured' /></td>" +
+                    "</tr>";
+                $("#marksTable tbody").append(newRow);
+            });
+
+            $("form").submit(function (event) {
+                event.preventDefault(); // Prevent default form submission
+
+                var studentsData = [];
+                $("#marksTable tbody tr").each(function () {
+                    var student = {
+                        SubjectName: $(this).find("select[name='students[0].SubjectName']").val(),
+                        InternalMarksSecured: $(this).find("input[name='students[0].InternalMarksSecured']").val(),
+                        SemesterMarksSecured: $(this).find("input[name='students[0].SemesterMarksSecured']").val()
+                    };
+                    studentsData.push(student);
+                });
+
+                // Post data to the controller action
+                $.ajax({
+                    url: '/Student/Save',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(studentsData),
+                    success: function (response) {
+                        // Handle success response
+                        console.log(response);
+                        // Redirect to a success page if necessary
+                    },
+                    error: function (xhr, textStatus, errorThrown) {
+                        // Handle error response
+                        console.log('Error:', errorThrown);
+                    }
+                });
+            });
+        });
+    </script>
+}
